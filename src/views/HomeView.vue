@@ -61,67 +61,13 @@
       </div>
     </section>
 
-    <!-- Skills section -->
-    <section
-      id="skills-section"
-      v-show="showHomeContent"
-      class="flex flex-col justify-center min-h-screen"
-      style="opacity: 0; transform: scale(0.3);"
-    >
-      <div class="max-w-4xl mx-auto text-center space-y-12">
-        <h2 class="text-brand font-Anton text-5xl sm:text-6xl md:text-7xl font-extrabold leading-none">
-          MY SKILLS
-        </h2>
-
-        <div class="grid md:grid-cols-2 gap-10">
-          <!-- Skills -->
-          <div class="space-y-6">
-            <h3 class="text-2xl font-bold text-white font-unbounded">Skills</h3>
-            <div class="flex flex-wrap gap-4">
-              <span class="bg-brand text-black px-4 py-2 rounded-full font-semibold">JavaScript</span>
-              <span class="bg-brand text-black px-4 py-2 rounded-full font-semibold">Python</span>
-            </div>
-          </div>
-
-          <!-- Frameworks -->
-          <div class="space-y-6">
-            <h3 class="text-2xl font-bold text-white font-unbounded">Frameworks</h3>
-            <div class="flex flex-wrap gap-4">
-              <span class="bg-brand text-black px-4 py-2 rounded-full font-semibold">Vue.js</span>
-              <span class="bg-brand text-black px-4 py-2 rounded-full font-semibold">Next.js</span>
-              <span class="bg-brand text-black px-4 py-2 rounded-full font-semibold">FastAPI</span>
-            </div>
-          </div>
-
-          <!-- Database -->
-          <div class="space-y-6">
-            <h3 class="text-2xl font-bold text-white font-unbounded">Database</h3>
-            <div class="flex flex-wrap gap-4">
-              <span class="bg-brand text-black px-4 py-2 rounded-full font-semibold">MongoDB</span>
-            </div>
-          </div>
-
-          <!-- Version Control -->
-          <div class="space-y-6">
-            <h3 class="text-2xl font-bold text-white font-unbounded">Version Control</h3>
-            <div class="flex flex-wrap gap-4">
-              <span class="bg-brand text-black px-4 py-2 rounded-full font-semibold">GitHub</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ref, onMounted } from 'vue'
 import welcome from '@/components/welcome.vue'
 import TilesTransition from '@/components/TilesTransition.vue'
-
-gsap.registerPlugin(ScrollTrigger)
 
 const dynamicWelcomeName = ref('SAIKALYAN LABHISHETTY')
 const showWelcome = ref(true)
@@ -139,43 +85,13 @@ onMounted(() => {
 function onTilesFinished() {
   showTiles.value = false
   showHomeContent.value = true
-
-  // Wait for DOM update
-  nextTick(() => {
-    setupScrollAnimation()
-  })
-}
-
-function setupScrollAnimation() {
-  const homeSection = document.getElementById('home-section')
-  const skillsSection = document.getElementById('skills-section')
-
-  if (!homeSection || !skillsSection) return
-
-  // Set initial scale for skills
-  gsap.set(skillsSection, { scale: 0.3, opacity: 0 })
-
-  // Create timeline for scroll animation
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: homeSection,
-      start: 'top top',
-      end: 'bottom top',
-      scrub: 1,
-      pin: true,
-      anticipatePin: 1,
-    }
-  })
-
-  tl.to(homeSection, { scale: 0.3, opacity: 0, duration: 1 })
-    .to(skillsSection, { scale: 1, opacity: 1, duration: 1 }, 0)
 }
 </script>
 
 <style scoped>
 .vertical-email {
   position: absolute;
-  left: -30px;
+  left: 10px;
   top: 85%;
   transform-origin: left center;
   transform: translateY(-50%) rotate(-90deg);
