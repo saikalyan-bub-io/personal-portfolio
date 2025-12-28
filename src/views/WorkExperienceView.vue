@@ -12,12 +12,14 @@
           <h1 class="text-brand font-Anton text-5xl sm:text-6xl md:text-8xl font-extrabold leading-none">
             WORK
             <br />
-            <span class="text-white ml-8">EXPERIENCE</span>
+            <span class="text-white ml-8" ref="experienceTitle">EXPERIENCE</span>
           </h1>
-          <p class="text-gray-300 max-w-2xl leading-relaxed font-unbounded text-sm sm:text-base">
-            A timeline of my professional journey, from internships to my current role, all mapped along a
-            single growth arrow.
-          </p>
+          <div ref="experienceDetails" class="space-y-2">
+            <p class="text-gray-300 max-w-2xl leading-relaxed font-unbounded text-sm sm:text-base">
+              A timeline of my professional journey, from internships to my current role, all mapped along a
+              single growth arrow.
+            </p>
+          </div>
         </div>
 
         <!-- Right: D3 timeline arrow aligned to the right (similar to HomeView stats) -->
@@ -29,13 +31,16 @@
         </div>
       </div>
     </section>
-
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 import * as d3 from 'd3'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 type Experience = {
   id: string
@@ -47,75 +52,59 @@ type Experience = {
   displayDates: string
 }
 
-type ExperienceWithMid = Experience & { mid: Date }
-
 const timelineRef = ref<HTMLDivElement | null>(null)
-// Use a relaxed type here to avoid dependency on external d3-selection typings
+const experienceDetails = ref<HTMLElement | null>(null)
 let svg: any | null = null
+let scrollTriggers: ScrollTrigger[] = []
 
 onMounted(() => {
   if (!timelineRef.value) return
 
   const container = timelineRef.value
   const width = container.clientWidth || 400
-  // Make the SVG/timeline use (almost) full viewport height so the arrow fills the page
   const height = container.clientHeight || 600
 
-  // Experiences in chronological order
+  // All experiences in chronological order (first to current)
   const experiences: Experience[] = [
     {
       id: 'assert-it',
       company: 'Assert IT Solutions',
       role: 'Software Engineering Intern',
-      start: new Date(2021, 1, 1), // February 2021
-      end: new Date(2021, 3, 30), // April 2021
+      start: new Date(2021, 1, 1),
+      end: new Date(2021, 3, 30),
       displayDates: 'Feb 2021 – Apr 2021',
     },
     {
       id: 'powerschool',
       company: 'PowerSchool India',
       role: 'Software Engineer Intern',
-      start: new Date(2022, 8, 1), // September 2022
-      end: new Date(2023, 5, 30), // June 2023
+      start: new Date(2022, 8, 1),
+      end: new Date(2023, 5, 30),
       displayDates: 'Sep 2022 – Jun 2023',
     },
     {
       id: 'mantra',
       company: 'Mantra Technologies',
       role: 'Software Engineer',
-      start: new Date(2024, 0, 1), // January 2024
-      end: new Date(2025, 2, 31), // March 2025
+      start: new Date(2024, 0, 1),
+      end: new Date(2025, 2, 31),
       displayDates: 'Jan 2024 – Mar 2025',
     },
     {
       id: 'owfis',
       company: 'Owfis Jobpe Technologies',
       role: 'Software Engineer',
-      start: new Date(2024, 0, 1), // January 2024
-      end: new Date(), // Current
+      start: new Date(2024, 0, 1),
+      end: new Date(),
       current: true,
       displayDates: 'Jan 2024 – Present',
     },
   ]
 
-  // Compute midpoints for positioning along the arrow
-  const experiencesWithMid = experiences.map((exp): ExperienceWithMid => {
-    const midTime = (exp.start.getTime() + exp.end.getTime()) / 2
-    return { ...exp, mid: new Date(midTime) }
-  })
-
-  const minStart = d3.min(experiencesWithMid, (d: ExperienceWithMid) => d.start) as Date
-  const maxEnd = d3.max(experiencesWithMid, (d: ExperienceWithMid) => d.end) as Date
-
-  const marginTop = 24
-  const marginBottom = 32
-  const arrowX = width * 0.5 // Center arrow inside its column so it isn't cut off
-
-  const yScale = d3
-    .scaleTime()
-    .domain([minStart, maxEnd])
-    // Invert the range so the most recent experience appears at the top
-    .range([height - marginBottom, marginTop])
+  const marginTop = 60
+  const marginBottom = 60
+  const leftX = width * 0.2
+  const spacing = (height - marginTop - marginBottom) / (experiences.length - 1)
 
   // Create SVG canvas
   svg = d3
@@ -124,7 +113,7 @@ onMounted(() => {
     .attr('width', width)
     .attr('height', height)
 
-  // Arrowhead marker for the main arrow (represents current company at the tip)
+  // Arrowhead marker (pointing downward)
   const defs = svg.append('defs')
 
   defs
@@ -140,100 +129,202 @@ onMounted(() => {
     .attr('d', 'M0,-5L10,0L0,5')
     .attr('fill', '#a3e635')
 
-  const arrowTop = marginTop
-  const arrowBottom = height - marginBottom
+  // Define positions for each experience with expanding curves
+  const positions = experiences.map((exp, i) => {
+    const y = marginTop + (spacing * i)
+    // Curve expands more as we go down
+    const curveExpansion = (i / (experiences.length - 1)) * width * 0.4
+    return { x: leftX + curveExpansion, y: y }
+  })
 
-  // Main vertical arrow on the right side (now pointing upward)
+  // Safely get the first position with a sensible fallback
+  const firstPosition = positions[0] ?? { x: leftX, y: marginTop }
+
+  // Create path with expanding curves through all experiences
+  let pathData = `M ${firstPosition.x} ${firstPosition.y}`
+  
+  for (let i = 0; i < positions.length - 1; i++) {
+    const current = positions[i]
+    const next = positions[i + 1]
+
+    // Extra safety in case indexes are out of bounds
+    if (!current || !next) continue
+
+    const midY = (current.y + next.y) / 2
+    
+    // Control points that create expanding curves
+    const controlX1 = current.x + (next.x - current.x) * 0.5 + width * 0.15
+    const controlY1 = current.y + (midY - current.y) * 0.5
+    
+    const controlX2 = current.x + (next.x - current.x) * 0.5 - width * 0.1
+    const controlY2 = midY + (next.y - midY) * 0.5
+    
+    pathData += ` C ${controlX1} ${controlY1}, ${controlX2} ${controlY2}, ${next.x} ${next.y}`
+  }
+
+  // Main curved arrow path
   svg
-    .append('line')
-    .attr('x1', arrowX)
-    .attr('y1', arrowBottom)
-    .attr('x2', arrowX)
-    .attr('y2', arrowTop)
+    .append('path')
+    .attr('d', pathData)
     .attr('stroke', '#4b5563')
     .attr('stroke-width', 3)
+    .attr('fill', 'none')
     .attr('marker-end', 'url(#experience-arrow)')
 
-  // Add a subtle timeline label at the bottom
+  // Timeline label at top
   svg
     .append('text')
-    .attr('x', arrowX + 8)
-    .attr('y', arrowBottom + 18)
+    .attr('x', firstPosition.x - 50)
+    .attr('y', marginTop - 10)
     .attr('fill', '#9ca3af')
     .style('font-size', '12px')
     .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif')
-    .text('Timeline')
+    .text('Start')
 
-  // Draw experience nodes along the arrow
+  // Draw experience nodes
   const nodes = svg
     .selectAll('g.experience-node')
-    .data(experiencesWithMid)
+    .data(experiences)
     .enter()
     .append('g')
     .attr('class', 'experience-node')
-    .attr('transform', (d: ExperienceWithMid) => {
-      let y = yScale(d.mid)
-
-      // Custom spacing so there is:
-      // - A clear gap between the arrow head and the Owfis node
-      // - A clear gap between Owfis and Mantra nodes
-      if (d.id === 'owfis') {
-        // Push slightly up relative to its scaled position but never closer
-        // than 24px from the arrow head
-        y = Math.max(y - 20, arrowTop + 24)
-      } else if (d.id === 'mantra') {
-        // Push Mantra further down so it separates more from Owfis
-        y += 20
+    .attr('data-id', (d: Experience) => d.id)
+    .attr('transform', (_d: Experience, i: number) => {
+      const position = positions[i]
+      if (!position) {
+        return `translate(${firstPosition.x}, ${firstPosition.y})`
       }
-
-      return `translate(${arrowX}, ${y})`
+      return `translate(${position.x}, ${position.y})`
     })
 
-  // Circles for each experience (last/current one highlighted)
+  // Circles for each experience
   nodes
     .append('circle')
-    .attr('r', (d: ExperienceWithMid) => (d.current ? 9 : 7))
-    .attr('fill', (d: ExperienceWithMid) => (d.current ? '#a3e635' : '#020617'))
-    .attr('stroke', (d: ExperienceWithMid) => (d.current ? '#bef264' : '#9ca3af'))
+    .attr('class', 'node-circle')
+    .attr('r', (d: Experience) => (d.current ? 9 : 7))
+    .attr('fill', (d: Experience) => (d.current ? '#a3e635' : '#020617'))
+    .attr('stroke', (d: Experience) => (d.current ? '#bef264' : '#9ca3af'))
     .attr('stroke-width', 2)
 
-  // Text labels around the arrow, zig-zag left/right per node
-  // 1) Company (brand color, larger)
+  // Company name - always to the right
   nodes
     .append('text')
-    .attr('x', (_d: ExperienceWithMid, i: number) => (i % 2 === 0 ? -20 : 20))
+    .attr('class', 'node-company')
+    .attr('x', 20)
     .attr('y', -10)
-    .attr('text-anchor', (_d: ExperienceWithMid, i: number) => (i % 2 === 0 ? 'end' : 'start'))
-    .attr('fill', '#a3e635') // matches text-brand
+    .attr('text-anchor', 'start')
+    .attr('fill', '#a3e635')
     .style('font-size', '16px')
     .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif')
     .style('font-weight', '600')
-    .text((d: ExperienceWithMid) => d.company)
+    .text((d: Experience) => d.company)
 
-  // 2) Role (white)
+  // Role
   nodes
     .append('text')
-    .attr('x', (_d: ExperienceWithMid, i: number) => (i % 2 === 0 ? -20 : 20))
+    .attr('class', 'node-role')
+    .attr('x', 20)
     .attr('y', 6)
-    .attr('text-anchor', (_d: ExperienceWithMid, i: number) => (i % 2 === 0 ? 'end' : 'start'))
+    .attr('text-anchor', 'start')
     .attr('fill', '#e5e7eb')
     .style('font-size', '14px')
     .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif')
-    .text((d: ExperienceWithMid) => d.role)
+    .text((d: Experience) => d.role)
 
-  // 3) Dates (gray)
+  // Dates
   nodes
     .append('text')
-    .attr('x', (_d: ExperienceWithMid, i: number) => (i % 2 === 0 ? -20 : 20))
+    .attr('class', 'node-dates')
+    .attr('x', 20)
     .attr('y', 22)
-    .attr('text-anchor', (_d: ExperienceWithMid, i: number) => (i % 2 === 0 ? 'end' : 'start'))
+    .attr('text-anchor', 'start')
     .attr('fill', '#9ca3af')
     .style('font-size', '11px')
     .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif')
-    .text((d: ExperienceWithMid) => d.displayDates)
+    .text((d: Experience) => d.displayDates)
+
+  // GSAP ScrollTrigger animations - based on page scroll, not overall document
+  experiences.forEach((exp, index) => {
+    const trigger = ScrollTrigger.create({
+      trigger: container,
+      start: () => `top+=${index * (container.clientHeight / experiences.length)} center`,
+      end: () => `top+=${(index + 1) * (container.clientHeight / experiences.length)} center`,
+      scrub: true,
+      onEnter: () => updateActiveExperience(exp),
+      onEnterBack: () => updateActiveExperience(exp),
+    })
+    scrollTriggers.push(trigger)
+  })
+
+  // Initialize with first experience
+  if (experiences.length > 0) {
+    updateActiveExperience(experiences[0])
+  }
+
+  function updateActiveExperience(exp: Experience | undefined) {
+    if (!exp) return
+
+    // Reset all nodes
+    d3.selectAll('.experience-node .node-circle')
+      .transition()
+      .duration(300)
+      .attr('r', (d: any) => (d.current ? 9 : 7))
+      .attr('fill', (d: any) => (d.current ? '#a3e635' : '#020617'))
+      .attr('stroke', (d: any) => (d.current ? '#bef264' : '#9ca3af'))
+      .attr('stroke-width', 2)
+
+    d3.selectAll('.experience-node .node-company')
+      .transition()
+      .duration(300)
+      .attr('fill', '#a3e635')
+      .style('font-size', '16px')
+
+    // Highlight active node
+    const activeNode = d3.select(`[data-id="${exp.id}"]`)
+    
+    activeNode.select('.node-circle')
+      .transition()
+      .duration(300)
+      .attr('r', 12)
+      .attr('fill', '#a3e635')
+      .attr('stroke', '#bef264')
+      .attr('stroke-width', 3)
+
+    activeNode.select('.node-company')
+      .transition()
+      .duration(300)
+      .attr('fill', '#bef264')
+      .style('font-size', '18px')
+
+    // Update details
+    if (experienceDetails.value) {
+      gsap.to(experienceDetails.value, {
+        opacity: 0,
+        y: -20,
+        duration: 0.3,
+        onComplete: () => {
+          if (experienceDetails.value) {
+            experienceDetails.value.innerHTML = `
+              <p class="text-2xl font-bold text-white">${exp.role}</p>
+              <p class="text-gray-400 text-sm">${exp.displayDates}</p>
+            `
+            gsap.to(experienceDetails.value, {
+              opacity: 1,
+              y: 0,
+              duration: 0.3
+            })
+          }
+        }
+      })
+    }
+  }
 })
 
 onBeforeUnmount(() => {
+  // Clean up GSAP ScrollTriggers
+  scrollTriggers.forEach(trigger => trigger.kill())
+  scrollTriggers = []
+  
   if (svg) {
     svg.remove()
     svg = null
