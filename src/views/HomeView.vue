@@ -80,11 +80,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject, type Ref } from 'vue'
 import welcome from '@/components/welcome.vue'
 import TilesTransition from '@/components/TilesTransition.vue'
 import SkillsView from '@/views/SkillsView.vue'
 import WorkExperienceView from '@/views/WorkExperienceView.vue'
+
+const showFooter = inject<Ref<boolean>>('showFooter')
 
 const dynamicWelcomeName = ref('SAIKALYAN LABHISHETTY')
 const showWelcome = ref(true)
@@ -101,6 +103,9 @@ onMounted(() => {
 function onTilesFinished() {
   showTiles.value = false
   showHomeContent.value = true
+  if (showFooter) {
+    showFooter.value = true
+  }
 }
 </script>
 

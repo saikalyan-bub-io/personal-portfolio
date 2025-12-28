@@ -104,7 +104,7 @@ onMounted(() => {
 
   const marginTop = 60
   const marginBottom = 60
-  const leftX = width * 0.2
+  const leftX = width * 0.1
   const spacing = (height - marginTop - marginBottom) / (experiences.length - 1)
 
   // Create SVG canvas
