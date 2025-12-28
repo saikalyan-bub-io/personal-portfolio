@@ -2,7 +2,7 @@
   <div
     class="min-h-screen bg-homebg text-white relative overflow-x-hidden"
     :class="[
-      { 'overflow-y-hidden': showWelcome },
+      { 'overflow-hidden': showWelcome },
       showHomeContent ? 'px-8 md:px-16' : ''
     ]"
   >
@@ -64,8 +64,7 @@
     <!-- Skills section with GSAP zoom-on-scroll effect -->
     <section
       id="skills-section"
-      ref="skillsSectionWrapper"
-      class="mt-32"
+      v-show="showHomeContent"
     >
       <SkillsView />
     </section>
@@ -73,7 +72,7 @@
     <!-- Work Experience section rendered after Skills -->
     <section
       id="work-experience-section"
-      class="mt-32"
+      v-show="showHomeContent"
     >
       <WorkExperienceView />
     </section>
@@ -81,9 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ref, onMounted } from 'vue'
 import welcome from '@/components/welcome.vue'
 import TilesTransition from '@/components/TilesTransition.vue'
 import SkillsView from '@/views/SkillsView.vue'
@@ -94,53 +91,13 @@ const showWelcome = ref(true)
 const showTiles = ref(false)
 const showHomeContent = ref(false)
 
-const skillsSectionWrapper = ref<HTMLElement | null>(null)
-// Keep a reference to this view's ScrollTrigger so we can clean it up
-const skillsScrollTrigger = ref<any | null>(null)
-
-// Register GSAP ScrollTrigger plugin once on component setup
-gsap.registerPlugin(ScrollTrigger)
-
 onMounted(() => {
   // Adjust timing to match your GSAP letter animation
   setTimeout(() => {
     showTiles.value = true
     showWelcome.value = false
   }, 3000)
-
-  // Wait for DOM to be ready before creating scroll-triggered zoom animation
-  nextTick(() => 
-    {
-      if (!skillsSectionWrapper.value) return
-
-      const tween = gsap.from(skillsSectionWrapper.value, {
-        scale: 0.8,
-        opacity: 0,
-        duration: 1.2,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: skillsSectionWrapper.value,
-          start: 'top 80%',
-          end: 'top 40%',
-          scrub: false,
-          toggleActions: 'play none none reverse',
-        },
-      })
-
-      // Store ScrollTrigger instance for cleanup
-      skillsScrollTrigger.value = tween.scrollTrigger || null
-    }
-  )
 })
-
-onBeforeUnmount(() => {
-  // Clean up ScrollTrigger created for the skills zoom animation
-  if (skillsScrollTrigger.value) {
-    skillsScrollTrigger.value.kill()
-    skillsScrollTrigger.value = null
-  }
-})
-
 function onTilesFinished() {
   showTiles.value = false
   showHomeContent.value = true
