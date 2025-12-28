@@ -20,7 +20,7 @@
           <h1 class="text-brand font-Anton text-5xl sm:text-6xl md:text-8xl font-extrabold leading-none">
             FULLSTACK
             <br />
-            <span class="text-white ml-8">DEVELOPER</span>
+            <span class="text-white ml-4 sm:ml-8">DEVELOPER</span>
           </h1>
 
           <p class="text-gray-300 max-w-xl leading-relaxed font-unbounded">
@@ -30,14 +30,14 @@
           </p>
 
           <button
-            class="bg-brand text-black font-bold py-3 px-8 text-lg uppercase tracking-wide hover:bg-lime-400 transition-all duration-200"
+            class="bg-brand text-black font-bold py-3 px-6 sm:px-8 text-lg uppercase tracking-wide hover:bg-lime-400 transition-all duration-200"
           >
             Hire Me
           </button>
         </div>
 
         <!-- Right: Stats -->
-        <div class="text-right space-y-8 font-unbounded mt-64">
+        <div class="text-right space-y-8 font-unbounded md:mt-64 mt-8">
           <div>
             <p class="text-4xl font-bold text-brand">2+</p>
             <p class="text-gray-400 text-sm uppercase tracking-wide">Years of Experience</p>
@@ -112,13 +112,13 @@ function onTilesFinished() {
 <style scoped>
 .vertical-email {
   position: absolute;
-  left: 25px;
+  left: 16px;
   top: 30%;
   transform-origin: left center;
   transform: translateY(-50%) rotate(-90deg);
   white-space: nowrap;
   color: #9ca3af;
-  font-size: 14px;
+  font-size: 12px;
   letter-spacing: 0.15em;
 }
 </style>

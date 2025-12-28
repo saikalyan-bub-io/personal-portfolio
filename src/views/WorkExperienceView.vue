@@ -12,7 +12,7 @@
           <h1 class="text-brand font-Anton text-5xl sm:text-6xl md:text-8xl font-extrabold leading-none">
             WORK
             <br />
-            <span class="text-white ml-8" ref="experienceTitle">EXPERIENCE</span>
+            <span class="text-white ml-4 sm:ml-8" ref="experienceTitle">EXPERIENCE</span>
           </h1>
           <div ref="experienceDetails" class="space-y-2">
             <p class="text-gray-300 max-w-2xl leading-relaxed font-unbounded text-sm sm:text-base">
@@ -64,6 +64,13 @@ onMounted(() => {
   const container = timelineRef.value
   const width = container.clientWidth || 400
   const height = container.clientHeight || 600
+
+  // Responsive font sizes
+  const isMobile = window.innerWidth < 768
+  const companyFontSize = isMobile ? 12 : 16
+  const roleFontSize = isMobile ? 12 : 14
+  const datesFontSize = isMobile ? 10 : 11
+  const timelineFontSize = isMobile ? 10 : 12
 
   // All experiences in chronological order (first to current)
   const experiences: Experience[] = [
@@ -178,7 +185,7 @@ onMounted(() => {
     .attr('x', firstPosition.x - 50)
     .attr('y', marginTop - 10)
     .attr('fill', '#9ca3af')
-    .style('font-size', '12px')
+    .style('font-size', `${timelineFontSize}px`)
     .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif')
     .text('Start')
 
@@ -215,7 +222,7 @@ onMounted(() => {
     .attr('y', -10)
     .attr('text-anchor', 'start')
     .attr('fill', '#a3e635')
-    .style('font-size', '16px')
+    .style('font-size', `${companyFontSize}px`)
     .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif')
     .style('font-weight', '600')
     .text((d: Experience) => d.company)
@@ -228,7 +235,7 @@ onMounted(() => {
     .attr('y', 6)
     .attr('text-anchor', 'start')
     .attr('fill', '#e5e7eb')
-    .style('font-size', '14px')
+    .style('font-size', `${roleFontSize}px`)
     .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif')
     .text((d: Experience) => d.role)
 
@@ -240,7 +247,7 @@ onMounted(() => {
     .attr('y', 22)
     .attr('text-anchor', 'start')
     .attr('fill', '#9ca3af')
-    .style('font-size', '11px')
+    .style('font-size', `${datesFontSize}px`)
     .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif')
     .text((d: Experience) => d.displayDates)
 
@@ -288,11 +295,11 @@ onMounted(() => {
       .transition()
       .duration(300)
       .attr('fill', '#a3e635')
-      .style('font-size', '16px')
+      .style('font-size', `${companyFontSize}px`)
 
     // Highlight active node
     const activeNode = d3.select(`[data-id="${exp.id}"]`)
-    
+
     activeNode.select('.node-circle')
       .transition()
       .duration(300)
@@ -305,7 +312,7 @@ onMounted(() => {
       .transition()
       .duration(300)
       .attr('fill', '#bef264')
-      .style('font-size', '18px')
+      .style('font-size', `${companyFontSize + 2}px`)
 
     // Update details
     if (experienceDetails.value) {

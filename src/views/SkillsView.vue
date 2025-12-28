@@ -12,7 +12,7 @@
           <h2 class="text-brand font-Anton text-5xl sm:text-6xl md:text-8xl font-extrabold leading-none">
             MY
             <br />
-            <span class="text-white ml-8">SKILLS</span>
+            <span class="text-white ml-4 sm:ml-8">SKILLS</span>
           </h2>
           <p class="text-gray-300 max-w-2xl leading-relaxed font-unbounded text-sm sm:text-base">
             From frontend experiences to backend APIs, these are the tools I use to build complete solutions
@@ -21,7 +21,7 @@
         </div>
 
         <!-- Right: Skills summary, aligned like HomeView stats (first skills, then heading) -->
-        <div class="md:col-span-1 text-right space-y-8 font-unbounded mt-64">
+        <div class="md:col-span-1 text-right space-y-8 font-unbounded md:mt-64 mt-8">
           <div>
             <p class="text-2xl sm:text-3xl font-bold text-brand">JavaScript, Python</p>
             <p class="text-gray-400 text-sm uppercase tracking-wide">Languages</p>
