@@ -56,6 +56,7 @@ const timelineRef = ref<HTMLDivElement | null>(null)
 const experienceDetails = ref<HTMLElement | null>(null)
 let svg: any | null = null
 let scrollTriggers: ScrollTrigger[] = []
+let activeExperienceId: string | null = null
 
 onMounted(() => {
   if (!timelineRef.value) return
@@ -243,26 +244,36 @@ onMounted(() => {
     .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif')
     .text((d: Experience) => d.displayDates)
 
-  // GSAP ScrollTrigger animations - based on page scroll, not overall document
-  experiences.forEach((exp, index) => {
+  // GSAP ScrollTrigger animation - smoothly move through all experiences
+  const totalExperiences = experiences.length
+
+  if (totalExperiences > 0) {
     const trigger = ScrollTrigger.create({
       trigger: container,
-      start: () => `top+=${index * (container.clientHeight / experiences.length)} center`,
-      end: () => `top+=${(index + 1) * (container.clientHeight / experiences.length)} center`,
+      start: 'top center',
+      end: 'bottom center',
       scrub: true,
-      onEnter: () => updateActiveExperience(exp),
-      onEnterBack: () => updateActiveExperience(exp),
-    })
-    scrollTriggers.push(trigger)
-  })
+      onUpdate: (self: ScrollTrigger) => {
+        const progress = self.progress // 0 -> 1
+        const index = Math.min(totalExperiences - 1, Math.floor(progress * totalExperiences))
+        const exp = experiences[index]
 
-  // Initialize with first experience
-  if (experiences.length > 0) {
+        if (exp && exp.id !== activeExperienceId) {
+          updateActiveExperience(exp)
+        }
+      },
+    })
+
+    scrollTriggers.push(trigger)
+
+    // Initialize with first experience
     updateActiveExperience(experiences[0])
   }
 
   function updateActiveExperience(exp: Experience | undefined) {
     if (!exp) return
+
+    activeExperienceId = exp.id
 
     // Reset all nodes
     d3.selectAll('.experience-node .node-circle')
