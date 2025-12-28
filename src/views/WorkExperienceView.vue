@@ -1,10 +1,10 @@
 <template>
   <div class="min-h-screen bg-homebg text-white overflow-x-hidden">
-    <section class="min-h-screen py-[20vh]">
-      <div class="grid md:grid-cols-2 gap-12 items-start">
+    <section class="flex flex-col justify-center min-h-screen">
+      <div class="grid md:grid-cols-3 gap-10 items-center">
 
         <!-- LEFT COLUMN -->
-        <div class="space-y-10">
+        <div class="md:col-span-2 space-y-6">
 
           <!-- Heading -->
           <div class="space-y-4">
@@ -31,10 +31,10 @@
         </div>
 
         <!-- RIGHT COLUMN (GRAPH UNCHANGED) -->
-        <div>
+        <div class="flex justify-center">
           <div
             ref="timelineRef"
-            class="w-full max-w-md h-[90vh]"
+            class="w-full max-w-md h-[60vh] sm:h-[70vh] md:h-[90vh]"
           ></div>
         </div>
 
