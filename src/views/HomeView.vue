@@ -1,5 +1,11 @@
 <template>
-  <div class="w-screen bg-homebg text-white px-8 md:px-16 relative" :class="{ 'overflow-hidden': !showWelcome }">
+  <div
+    class="min-h-screen bg-homebg text-white relative overflow-x-hidden"
+    :class="[
+      { 'overflow-y-hidden': showWelcome },
+      showHomeContent ? 'px-8 md:px-16' : ''
+    ]"
+  >
     <!-- Welcome animation -->
     <welcome :name="dynamicWelcomeName" v-if="showWelcome" />
 
@@ -49,14 +55,19 @@
 
       <!-- Vertical email text -->
       <div
-        class="vertical-email hidden md:block font-unbounded"
+        class="vertical-email md:block font-unbounded"
       >
         labhishettysaikalyan@gmail.com
       </div>
     </section>
 
     <!-- Skills section -->
-    <section id="skills-section" class="flex flex-col justify-center min-h-screen">
+    <section
+      id="skills-section"
+      v-show="showHomeContent"
+      class="flex flex-col justify-center min-h-screen"
+      style="opacity: 0; transform: scale(0.3);"
+    >
       <div class="max-w-4xl mx-auto text-center space-y-12">
         <h2 class="text-brand font-Anton text-5xl sm:text-6xl md:text-7xl font-extrabold leading-none">
           MY SKILLS
@@ -164,7 +175,7 @@ function setupScrollAnimation() {
 <style scoped>
 .vertical-email {
   position: absolute;
-  left: 10px;
+  left: -30px;
   top: 85%;
   transform-origin: left center;
   transform: translateY(-50%) rotate(-90deg);

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-black -mx-8 md:-mx-16">
+  <div class="flex items-center justify-center min-h-screen bg-black overflow-hidden -mx-8 md:-mx-16">
     <h1
       ref="textElement"
       class="text-animation text-4xl sm:text-5xl md:text-10xl font-extrabold text-brand tracking-wide w-full font-Anton text-center"
