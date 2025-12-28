@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Simplebar custom styles */
+[data-simplebar] {
+  --simplebar-track-color: #212121;
+  --simplebar-thumb-color: #96f507;
+  --simplebar-hover-color: #a3e635;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(to right, #212121 45%, #96f507 45%, #96f507 55%, #212121 55%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #96f507;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a3e635;
+}

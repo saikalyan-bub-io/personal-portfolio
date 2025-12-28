@@ -112,7 +112,7 @@ function onTilesFinished() {
 <style scoped>
 .vertical-email {
   position: absolute;
-  left: 10px;
+  left: 25px;
   top: 30%;
   transform-origin: left center;
   transform: translateY(-50%) rotate(-90deg);
