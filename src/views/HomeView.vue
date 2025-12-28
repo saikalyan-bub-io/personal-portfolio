@@ -61,18 +61,45 @@
       </div>
     </section>
 
+    <!-- Skills section with GSAP zoom-on-scroll effect -->
+    <section
+      id="skills-section"
+      ref="skillsSectionWrapper"
+      class="mt-32"
+    >
+      <SkillsView />
+    </section>
+
+    <!-- Work Experience section rendered after Skills -->
+    <section
+      id="work-experience-section"
+      class="mt-32"
+    >
+      <WorkExperienceView />
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import welcome from '@/components/welcome.vue'
 import TilesTransition from '@/components/TilesTransition.vue'
+import SkillsView from '@/views/SkillsView.vue'
+import WorkExperienceView from '@/views/WorkExperienceView.vue'
 
 const dynamicWelcomeName = ref('SAIKALYAN LABHISHETTY')
 const showWelcome = ref(true)
 const showTiles = ref(false)
 const showHomeContent = ref(false)
+
+const skillsSectionWrapper = ref<HTMLElement | null>(null)
+// Keep a reference to this view's ScrollTrigger so we can clean it up
+const skillsScrollTrigger = ref<any | null>(null)
+
+// Register GSAP ScrollTrigger plugin once on component setup
+gsap.registerPlugin(ScrollTrigger)
 
 onMounted(() => {
   // Adjust timing to match your GSAP letter animation
@@ -80,6 +107,38 @@ onMounted(() => {
     showTiles.value = true
     showWelcome.value = false
   }, 3000)
+
+  // Wait for DOM to be ready before creating scroll-triggered zoom animation
+  nextTick(() => 
+    {
+      if (!skillsSectionWrapper.value) return
+
+      const tween = gsap.from(skillsSectionWrapper.value, {
+        scale: 0.8,
+        opacity: 0,
+        duration: 1.2,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: skillsSectionWrapper.value,
+          start: 'top 80%',
+          end: 'top 40%',
+          scrub: false,
+          toggleActions: 'play none none reverse',
+        },
+      })
+
+      // Store ScrollTrigger instance for cleanup
+      skillsScrollTrigger.value = tween.scrollTrigger || null
+    }
+  )
+})
+
+onBeforeUnmount(() => {
+  // Clean up ScrollTrigger created for the skills zoom animation
+  if (skillsScrollTrigger.value) {
+    skillsScrollTrigger.value.kill()
+    skillsScrollTrigger.value = null
+  }
 })
 
 function onTilesFinished() {
@@ -92,7 +151,7 @@ function onTilesFinished() {
 .vertical-email {
   position: absolute;
   left: 10px;
-  top: 85%;
+  top: 30%;
   transform-origin: left center;
   transform: translateY(-50%) rotate(-90deg);
   white-space: nowrap;
