@@ -18,20 +18,15 @@
             </h1>
           </div>
 
-          <!-- Dynamic Work Content -->
-          <div
-            ref="workDetailsRef"
-            class="space-y-4 max-w-xl"
-          >
-            <p class="text-gray-400 text-sm">
-              Scroll the timeline to explore my work.
-            </p>
-          </div>
-
+          <!-- Description -->
+          <p class="text-gray-300 max-w-xl leading-relaxed font-unbounded">
+            Over the years, I've gained hands-on experience in developing scalable web applications,
+            working with modern technologies and frameworks to deliver high-performance solutions.
+          </p>
         </div>
 
         <!-- RIGHT COLUMN (GRAPH UNCHANGED) -->
-        <div class="flex justify-center">
+        <div class="flex justify-center mt-64">
           <div
             ref="timelineRef"
             class="w-full max-w-md h-[60vh] sm:h-[70vh] md:h-[90vh]"
@@ -65,10 +60,7 @@ type Position = {
   y: number
 }
 
-type WorkDetails = {
-  title: string
-  points: string[]
-}
+
 
 /* ---------------- DATA ---------------- */
 
@@ -99,50 +91,11 @@ const experiences: Experience[] = [
   },
 ]
 
-const workMap: Record<string, WorkDetails> = {
-  'assert-it': {
-    title: 'Assert IT Solutions',
-    points: [
-      'Resolved UI issues and front-end bugs to improve user experience.',
-      'Implemented minor features and enhanced existing functionality.',
-    ],
-  },
-  powerschool: {
-    title: 'PowerSchool India',
-    points: [
-      'Worked as a full-stack developer on the Shared Services project.',
-      'Developed production-grade features using ReactJS and NodeJS.',
-      'Implemented responsive UI and reusable components.',
-      'Wrote test cases using Jest.',
-      'Worked with MySQL and Auth0.',
-    ],
-  },
-  mantra: {
-    title: 'Mantra Technologies',
-    points: [
-      'Developed scalable web apps using Next.js with optimized SSR.',
-      'Built backend services with Node.js.',
-      'Integrated Razorpay payment gateway.',
-      'Used Vue 3 Composition API for scalable components.',
-      'Improved performance with Vanilla JavaScript.',
-    ],
-  },
-  owfis: {
-    title: 'Owfis Jobpe Technologies',
-    points: [
-      'Built dynamic apps using Vue 3 and Nuxt.js.',
-      'Developed REST APIs using FastAPI.',
-      'Integrated LLM-based generative AI features.',
-      'Implemented real-time, context-aware chat responses.',
-      'Optimized apps for high concurrent traffic.',
-    ],
-  },
-}
+
 
 /* ---------------- REFS ---------------- */
 
 const timelineRef = ref<HTMLDivElement | null>(null)
-const workDetailsRef = ref<HTMLElement | null>(null)
 
 let svg: d3.Selection<SVGSVGElement, unknown, null, undefined> | null = null
 let trigger: ScrollTrigger | null = null
@@ -231,6 +184,7 @@ onMounted(() => {
     .attr('stroke', '#9ca3af')
     .attr('stroke-width', 2)
 
+  // Company text
   nodes.append('text')
     .attr('x', (_, i) => (i % 2 === 0 ? 20 : -20))
     .attr('text-anchor', (_, i) => (i % 2 === 0 ? 'start' : 'end'))
@@ -239,6 +193,16 @@ onMounted(() => {
     .style('font-size', '16px')
     .style('font-weight', '600')
     .text(d => d.company)
+
+  // Role and dates text
+  nodes.append('text')
+    .attr('x', (_, i) => (i % 2 === 0 ? 20 : -20))
+    .attr('text-anchor', (_, i) => (i % 2 === 0 ? 'start' : 'end'))
+    .attr('y', 8)
+    .attr('fill', '#9ca3af')
+    .style('font-size', '10px')
+    .style('font-weight', '500')
+    .text(d => `${d.role} (${d.displayDates})`)
 
   /* ScrollTrigger */
   trigger = ScrollTrigger.create({
@@ -269,25 +233,6 @@ onMounted(() => {
       .attr('r', 12)
       .attr('fill', '#a3e635')
       .attr('stroke', '#bef264')
-
-    const details = workMap[exp.id]
-    if (!details || !workDetailsRef.value) return
-
-    gsap.to(workDetailsRef.value, {
-      opacity: 0,
-      y: 20,
-      duration: 0.25,
-      onComplete: () => {
-        if (!workDetailsRef.value) return
-        workDetailsRef.value.innerHTML = `
-          <h3 class="text-xl font-semibold text-brand">${details.title}</h3>
-          <ul class="list-disc list-inside text-gray-300 text-sm space-y-2">
-            ${details.points.map(p => `<li>${p}</li>`).join('')}
-          </ul>
-        `
-        gsap.to(workDetailsRef.value, { opacity: 1, y: 0, duration: 0.25 })
-      },
-    })
   }
 })
 
