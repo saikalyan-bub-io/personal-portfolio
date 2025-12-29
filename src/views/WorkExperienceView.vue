@@ -201,12 +201,18 @@ onMounted(() => {
     path += ` C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`
   }
 
-  svg.append('path')
+  const pathSelection = svg.append('path')
     .attr('d', path)
     .attr('fill', 'none')
     .attr('stroke', '#4b5563')
     .attr('stroke-width', 3)
     .attr('marker-end', 'url(#arrow)')
+
+  const pathElement = pathSelection.node() as SVGPathElement
+  const totalLength = pathElement.getTotalLength()
+  pathSelection
+    .attr('stroke-dasharray', totalLength)
+    .attr('stroke-dashoffset', totalLength)
 
   /* Nodes */
   const nodes = svg.selectAll('.node')
@@ -235,21 +241,20 @@ onMounted(() => {
     .text(d => d.company)
 
   /* ScrollTrigger */
-  requestAnimationFrame(() => {
-    trigger = ScrollTrigger.create({
-      trigger: container,
-      start: 'top center',
-      end: 'bottom center',
-      scrub: true,
-      invalidateOnRefresh: true,
-      onUpdate(self) {
-        const index = Math.round(self.progress * (experiences.length - 1))
-        const exp = experiences[index]
-        if (exp && exp.id !== activeId) activate(exp)
-      },
-    })
-    ScrollTrigger.refresh()
+  trigger = ScrollTrigger.create({
+    trigger: container,
+    start: 'top center',
+    end: 'bottom center',
+    scrub: true,
+    invalidateOnRefresh: true,
+    onUpdate(self) {
+      const index = Math.round(self.progress * (experiences.length - 1))
+      const exp = experiences[index]
+      if (exp && exp.id !== activeId) activate(exp)
+      pathSelection.attr('stroke-dashoffset', totalLength * (1 - self.progress))
+    },
   })
+  ScrollTrigger.refresh()
 
   function activate(exp: Experience) {
     activeId = exp.id
