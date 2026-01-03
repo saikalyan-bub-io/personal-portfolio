@@ -1,45 +1,26 @@
 <template>
   <div class="min-h-screen bg-homebg text-white overflow-x-hidden">
-    <section class="flex flex-col justify-center min-h-screen">
-      <div class="grid md:grid-cols-3 gap-10 items-center">
+    <section class="flex flex-col min-h-screen">
+      <!-- Heading -->
+      <div class="text-center space-y-4 mb-10">
+        <h1 class="text-brand font-Anton text-2xl md:text-4xl font-extrabold leading-none">
+          WORK EXPERIENCE
+        </h1>
+      </div>
 
-        <!-- LEFT COLUMN -->
-        <div class="md:col-span-2 space-y-6">
-
-          <!-- Heading -->
-          <div class="space-y-4">
-            <p class="text-gray-400 font-unbounded text-xs tracking-[0.25em] uppercase">
-              My work experience
-            </p>
-
-            <h1 class="text-brand font-Anton text-6xl md:text-8xl font-extrabold leading-none">
-              WORK<br />
-              <span class="text-white ml-8">EXPERIENCE</span>
-            </h1>
-          </div>
-
-          <!-- Description -->
-          <p class="text-gray-300 max-w-xl leading-relaxed font-unbounded">
-            Over the years, I've gained hands-on experience in developing scalable web applications,
-            working with modern technologies and frameworks to deliver high-performance solutions.
-          </p>
-        </div>
-
-        <!-- RIGHT COLUMN (GRAPH UNCHANGED) -->
-        <div class="flex justify-center mt-64">
-          <div
-            ref="timelineRef"
-            class="w-full max-w-md h-[60vh] sm:h-[70vh] md:h-[90vh]"
-          ></div>
-        </div>
-
+      <!-- Graph container -->
+      <div class="flex justify-center">
+        <div
+          ref="timelineRef"
+          class="w-full max-w-6xl px-8 h-[70vh] sm:h-[80vh] md:h-[95vh]"
+        ></div>
       </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { onMounted, onBeforeUnmount, ref, nextTick } from 'vue'
 import * as d3 from 'd3'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -59,8 +40,6 @@ type Position = {
   x: number
   y: number
 }
-
-
 
 /* ---------------- DATA ---------------- */
 
@@ -91,23 +70,24 @@ const experiences: Experience[] = [
   },
 ]
 
-
-
 /* ---------------- REFS ---------------- */
 
 const timelineRef = ref<HTMLDivElement | null>(null)
 
 let svg: d3.Selection<SVGSVGElement, unknown, null, undefined> | null = null
 let trigger: ScrollTrigger | null = null
+let resizeObserver: ResizeObserver | null = null
 let activeId: string | null = null
+let totalLength = 0
 
 /* ---------------- MOUNT ---------------- */
 
-onMounted(() => {
-  if (!timelineRef.value) return
-  const container = timelineRef.value!
+onMounted(async () => {
+  await nextTick() // 🔥 CRITICAL FIX
 
-  const width = container.getBoundingClientRect().width || 400
+  if (!timelineRef.value) return
+  const container = timelineRef.value
+
   const marginTop = 80
   const marginBottom = 80
   const nodeGap = 240
@@ -118,10 +98,11 @@ onMounted(() => {
   svg = d3
     .select(container)
     .append('svg')
-    .attr('width', width)
     .attr('height', height)
+    .style('overflow', 'visible')
 
-  /* Arrow */
+  /* ---------------- ARROW ---------------- */
+
   svg.append('defs')
     .append('marker')
     .attr('id', 'arrow')
@@ -135,48 +116,29 @@ onMounted(() => {
     .attr('d', 'M0,-5L10,0L0,5')
     .attr('fill', '#a3e635')
 
-  /* Positions */
-  const leftX = width * 0.15
-  const rightX = width * 0.8
+  /* ---------------- POSITIONS ---------------- */
 
   const positions: Position[] = experiences.map((_, i) => ({
-    x: i % 2 === 0 ? leftX : rightX,
+    x: 0,
     y: marginTop + i * nodeGap,
   }))
 
-  /* Path */
-  let path = `M ${positions[0]!.x} ${positions[0]!.y}`
-
-  for (let i = 0; i < positions.length - 1; i++) {
-    const a = positions[i]!
-    const b = positions[i + 1]!
-    const midY = (a.y + b.y) / 2
-    path += ` C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`
-  }
+  /* ---------------- PATH ---------------- */
 
   const pathSelection = svg.append('path')
-    .attr('d', path)
     .attr('fill', 'none')
     .attr('stroke', '#4b5563')
     .attr('stroke-width', 3)
     .attr('marker-end', 'url(#arrow)')
 
-  const pathElement = pathSelection.node() as SVGPathElement
-  const totalLength = pathElement.getTotalLength()
-  pathSelection
-    .attr('stroke-dasharray', totalLength)
-    .attr('stroke-dashoffset', totalLength)
+  /* ---------------- NODES ---------------- */
 
-  /* Nodes */
   const nodes = svg.selectAll('.node')
     .data(experiences)
     .enter()
     .append('g')
     .attr('class', 'node')
     .attr('data-id', d => d.id)
-    .attr('transform', (_, i) =>
-      `translate(${positions[i]!.x}, ${positions[i]!.y})`
-    )
 
   nodes.append('circle')
     .attr('r', 7)
@@ -184,27 +146,72 @@ onMounted(() => {
     .attr('stroke', '#9ca3af')
     .attr('stroke-width', 2)
 
-  // Company text
   nodes.append('text')
-    .attr('x', (_, i) => (i % 2 === 0 ? 20 : -20))
+    .attr('x', (_, i) => (i % 2 === 0 ? 24 : -24))
     .attr('text-anchor', (_, i) => (i % 2 === 0 ? 'start' : 'end'))
-    .attr('y', -6)
+    .attr('y', -8)
     .attr('fill', '#a3e635')
     .style('font-size', '16px')
     .style('font-weight', '600')
     .text(d => d.company)
 
-  // Role and dates text
   nodes.append('text')
-    .attr('x', (_, i) => (i % 2 === 0 ? 20 : -20))
+    .attr('x', (_, i) => (i % 2 === 0 ? 24 : -24))
     .attr('text-anchor', (_, i) => (i % 2 === 0 ? 'start' : 'end'))
-    .attr('y', 8)
+    .attr('y', 10)
     .attr('fill', '#9ca3af')
     .style('font-size', '10px')
     .style('font-weight', '500')
     .text(d => `${d.role} (${d.displayDates})`)
 
-  /* ScrollTrigger */
+  /* ---------------- BUILD / UPDATE ---------------- */
+
+  function rebuild() {
+    const width = container.getBoundingClientRect().width
+    if (!width) return
+
+    const leftX = width * 0.1
+    const rightX = width * 0.9
+    const curveOffset = width * 0.55
+
+    svg!.attr('width', width)
+
+    positions.forEach((p, i) => {
+      p.x = i % 2 === 0 ? leftX : rightX
+    })
+
+    let path = `M ${positions[0]!.x} ${positions[0]!.y}`
+
+    for (let i = 0; i < positions.length - 1; i++) {
+      const a = positions[i]!
+      const b = positions[i + 1]!
+      const midY = (a.y + b.y) / 2
+      const direction = i % 2 === 0 ? -1 : 1
+
+      path += ` C ${a.x + direction * curveOffset} ${midY},
+                 ${b.x + direction * curveOffset} ${midY},
+                 ${b.x} ${b.y}`
+    }
+
+    pathSelection.attr('d', path)
+
+    totalLength = pathSelection.node()!.getTotalLength()
+
+    pathSelection
+      .attr('stroke-dasharray', totalLength)
+      .attr('stroke-dashoffset', totalLength * (1 - (trigger?.progress || 1)))
+
+    svg!
+      .selectAll<SVGGElement, Experience>('.node')
+      .attr('transform', (_, i) =>
+        `translate(${positions[i]!.x}, ${positions[i]!.y})`
+      )
+  }
+
+  rebuild()
+
+  /* ---------------- SCROLL ---------------- */
+
   trigger = ScrollTrigger.create({
     trigger: container,
     start: 'top center',
@@ -215,10 +222,25 @@ onMounted(() => {
       const index = Math.round(self.progress * (experiences.length - 1))
       const exp = experiences[index]
       if (exp && exp.id !== activeId) activate(exp)
-      pathSelection.attr('stroke-dashoffset', totalLength * (1 - self.progress))
+
+      pathSelection.attr(
+        'stroke-dashoffset',
+        totalLength * (1 - self.progress)
+      )
     },
+    onRefresh: rebuild,
   })
-  ScrollTrigger.refresh()
+
+  resizeObserver = new ResizeObserver(() => {
+    ScrollTrigger.refresh()
+  })
+  resizeObserver.observe(container)
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh()
+    })
+  })
 
   function activate(exp: Experience) {
     activeId = exp.id
@@ -238,6 +260,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   trigger?.kill()
+  resizeObserver?.disconnect()
   svg?.remove()
 })
 </script>
