@@ -17,7 +17,7 @@
       <div class="grid md:grid-cols-3 gap-10 items-center">
         <!-- Left: Main headline and text -->
         <div class="md:col-span-2 space-y-6">
-          <h1 class="text-brand font-Anton text-5xl sm:text-6xl md:text-8xl font-extrabold leading-none">
+          <h1 class="text-brand font-Anton text-4xl sm:text-5xl md:text-7xl font-extrabold leading-none">
             FULLSTACK
             <br />
             <span class="text-white ml-4 sm:ml-8">DEVELOPER</span>
@@ -30,35 +30,30 @@
           </p>
 
           <button
-            class="bg-brand text-black font-bold py-3 px-6 sm:px-8 text-lg uppercase tracking-wide hover:bg-lime-400 transition-all duration-200"
+            @click="downloadResume"
+            class="bg-brand text-black font-bold py-2 px-6 text-base uppercase tracking-wide hover:bg-lime-400 transition-all duration-200"
           >
             Hire Me
           </button>
         </div>
 
         <!-- Right: Stats -->
-        <div class="text-right space-y-8 font-unbounded md:mt-64 mt-8">
+        <div class="text-right space-y-8 font-unbounded mt-0 md:mt-64">
           <div>
-            <p class="text-4xl font-bold text-brand">2+</p>
+            <p class="text-3xl sm:text-4xl font-bold text-brand">2+</p>
             <p class="text-gray-400 text-sm uppercase tracking-wide">Years of Experience</p>
           </div>
           <div>
-            <p class="text-4xl font-bold text-brand">7+</p>
+            <p class="text-3xl sm:text-4xl font-bold text-brand">7+</p>
             <p class="text-gray-400 text-sm uppercase tracking-wide">Completed Projects</p>
           </div>
           <div>
-            <p class="text-4xl font-bold text-brand">10K+</p>
+            <p class="text-3xl sm:text-4xl font-bold text-brand">10K+</p>
             <p class="text-gray-400 text-sm uppercase tracking-wide">Hours Worked</p>
           </div>
         </div>
       </div>
 
-      <!-- Vertical email text -->
-      <div
-        class="vertical-email md:block font-unbounded"
-      >
-        labhishettysaikalyan@gmail.com
-      </div>
     </section>
 
     <!-- Skills section with GSAP zoom-on-scroll effect -->
@@ -76,6 +71,13 @@
     >
       <WorkExperienceView />
     </section>
+
+    <section
+      id="services-section"
+      v-show="showHomeContent"
+    >
+      <ServicesView />
+    </section>
   </div>
 </template>
 
@@ -85,6 +87,8 @@ import welcome from '@/components/welcome.vue'
 import TilesTransition from '@/components/TilesTransition.vue'
 import SkillsView from '@/views/SkillsView.vue'
 import WorkExperienceView from '@/views/WorkExperienceView.vue'
+import ServicesView from '@/views/ServicesView.vue'
+
 
 const showFooter = inject<Ref<boolean>>('showFooter')
 
@@ -107,18 +111,11 @@ function onTilesFinished() {
     showFooter.value = true
   }
 }
-</script>
 
-<style scoped>
-.vertical-email {
-  position: absolute;
-  left: 16px;
-  top: 30%;
-  transform-origin: left center;
-  transform: translateY(-50%) rotate(-90deg);
-  white-space: nowrap;
-  color: #9ca3af;
-  font-size: 12px;
-  letter-spacing: 0.15em;
+function downloadResume() {
+  const link = document.createElement('a')
+  link.href = '/Saikalyan Labhishetty .pdf'
+  link.download = 'Saikalyan_Labhishetty_Resume.pdf'
+  link.click()
 }
-</style>
+</script>
