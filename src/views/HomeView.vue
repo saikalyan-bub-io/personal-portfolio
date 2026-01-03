@@ -17,7 +17,7 @@
       <div class="grid md:grid-cols-3 gap-10 items-center">
         <!-- Left: Main headline and text -->
         <div class="md:col-span-2 space-y-6">
-          <h1 class="text-brand font-Anton text-5xl sm:text-6xl md:text-8xl font-extrabold leading-none">
+          <h1 class="text-brand font-Anton text-4xl sm:text-5xl md:text-7xl font-extrabold leading-none">
             FULLSTACK
             <br />
             <span class="text-white ml-8">DEVELOPER</span>
@@ -31,24 +31,24 @@
 
           <button
             @click="downloadResume"
-            class="bg-brand text-black font-bold py-3 px-8 text-lg uppercase tracking-wide hover:bg-lime-400 transition-all duration-200"
+            class="bg-brand text-black font-bold py-2 px-6 text-base uppercase tracking-wide hover:bg-lime-400 transition-all duration-200"
           >
             Hire Me
           </button>
         </div>
 
         <!-- Right: Stats -->
-        <div class="text-right space-y-8 font-unbounded mt-64">
+        <div class="text-right space-y-8 font-unbounded mt-0 md:mt-64">
           <div>
-            <p class="text-4xl font-bold text-brand">2+</p>
+            <p class="text-3xl sm:text-4xl font-bold text-brand">2+</p>
             <p class="text-gray-400 text-sm uppercase tracking-wide">Years of Experience</p>
           </div>
           <div>
-            <p class="text-4xl font-bold text-brand">7+</p>
+            <p class="text-3xl sm:text-4xl font-bold text-brand">7+</p>
             <p class="text-gray-400 text-sm uppercase tracking-wide">Completed Projects</p>
           </div>
           <div>
-            <p class="text-4xl font-bold text-brand">10K+</p>
+            <p class="text-3xl sm:text-4xl font-bold text-brand">10K+</p>
             <p class="text-gray-400 text-sm uppercase tracking-wide">Hours Worked</p>
           </div>
         </div>

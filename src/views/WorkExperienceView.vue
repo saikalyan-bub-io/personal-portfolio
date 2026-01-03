@@ -147,6 +147,7 @@ onMounted(async () => {
     .attr('stroke-width', 2)
 
   nodes.append('text')
+    .attr('class', 'company-text')
     .attr('x', (_, i) => (i % 2 === 0 ? 24 : -24))
     .attr('text-anchor', (_, i) => (i % 2 === 0 ? 'start' : 'end'))
     .attr('y', -8)
@@ -156,6 +157,7 @@ onMounted(async () => {
     .text(d => d.company)
 
   nodes.append('text')
+    .attr('class', 'role-text')
     .attr('x', (_, i) => (i % 2 === 0 ? 24 : -24))
     .attr('text-anchor', (_, i) => (i % 2 === 0 ? 'start' : 'end'))
     .attr('y', 10)
@@ -170,14 +172,24 @@ onMounted(async () => {
     const width = container.getBoundingClientRect().width
     if (!width) return
 
-    const leftX = width * 0.1
-    const rightX = width * 0.9
-    const curveOffset = width * 0.55
+    const isMobile = width < 600
+    const leftX = isMobile ? width * 0.15 : width * 0.1
+    const rightX = isMobile ? width * 0.85 : width * 0.9
+    const curveOffset = isMobile ? width * 0.1 : width * 0.55
+    const textOffset = isMobile ? 12 : 24
+    const companyFontSize = isMobile ? '14px' : '16px'
+    const roleFontSize = isMobile ? '8px' : '10px'
+    const nodeGap = isMobile ? 180 : 240
+    const marginTop = isMobile ? 60 : 80
+    const marginBottom = isMobile ? 60 : 80
+    const height = marginTop + marginBottom + nodeGap * (experiences.length - 1)
 
     svg!.attr('width', width)
+    svg!.attr('height', height)
 
     positions.forEach((p, i) => {
       p.x = i % 2 === 0 ? leftX : rightX
+      p.y = marginTop + i * nodeGap
     })
 
     let path = `M ${positions[0]!.x} ${positions[0]!.y}`
@@ -206,6 +218,14 @@ onMounted(async () => {
       .attr('transform', (_, i) =>
         `translate(${positions[i]!.x}, ${positions[i]!.y})`
       )
+
+    svg!.selectAll('.company-text')
+      .attr('x', (_, i) => (i % 2 === 0 ? textOffset : -textOffset))
+      .style('font-size', companyFontSize)
+
+    svg!.selectAll('.role-text')
+      .attr('x', (_, i) => (i % 2 === 0 ? textOffset : -textOffset))
+      .style('font-size', roleFontSize)
   }
 
   rebuild()
