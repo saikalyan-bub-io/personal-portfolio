@@ -12,7 +12,7 @@
           <h2 class="text-brand font-Anton text-4xl sm:text-5xl md:text-7xl font-extrabold leading-none">
             MY
             <br />
-            <span class="text-white ml-8">SKILLS</span>
+            <span class="text-white ml-4 sm:ml-8">SKILLS</span>
           </h2>
           <p class="text-gray-300 max-w-2xl leading-relaxed font-unbounded text-sm sm:text-base">
             From frontend experiences to backend APIs, these are the tools I use to build complete solutions

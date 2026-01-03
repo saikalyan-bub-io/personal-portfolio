@@ -20,7 +20,7 @@
           <h1 class="text-brand font-Anton text-4xl sm:text-5xl md:text-7xl font-extrabold leading-none">
             FULLSTACK
             <br />
-            <span class="text-white ml-8">DEVELOPER</span>
+            <span class="text-white ml-4 sm:ml-8">DEVELOPER</span>
           </h1>
 
           <p class="text-gray-300 max-w-xl leading-relaxed font-unbounded">
